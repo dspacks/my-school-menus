@@ -1,25 +1,24 @@
 import icalendar
 import json
-from datetime import datetime
-
+from datetime import datetime, timedelta
 
 class Calendar:
     @staticmethod
-    def events(menu: json) -> list:
+    def events(menu: json, label: str, start_hour: int, start_minute: int, duration: int) -> list:
         """
-        Generate a list of events from a menu
+        Generate a list of events from a menu with specified start times and durations.
 
         :param menu: json menu.
-
+        :param label: Event label prefix (e.g., "Breakfast:" or "Lunch:").
+        :param start_hour: Hour for event start time.
+        :param start_minute: Minute for event start time.
+        :param duration: Event duration in minutes.
         :return: List of events.
-        :rtype: list
         """
         event_list = []
         menu_data = menu['data']
         if not menu_data:
-            raise ValueError(
-                f"Missing menu data."
-            )
+            raise ValueError("Missing menu data.")
 
         for entry in menu_data:
             if entry is None:
@@ -33,7 +32,7 @@ class Calendar:
                 for item in json.loads(entry['setting'])['current_display']:
                     if item['type'] == 'recipe' and recipe_count == 0:
                         recipe_count += 1
-                        summary = f"Lunch: {item['name']}"
+                        summary = f"{label} {item['name']}"
                     if item['type'] == 'category' and category_count == 0:
                         category_count += 1
                         description = f"{description}{item['name']}:\n"
@@ -43,9 +42,14 @@ class Calendar:
                         description = f"{description}{item['name']}\n"
                 if summary == '':
                     continue
+                
+                event_start = datetime.fromisoformat(entry['day']).replace(hour=start_hour, minute=start_minute)
+                event_end = event_start + timedelta(minutes=duration)
+                
                 event.add('summary', summary)
                 event.add('description', description)
-                event.add('dtstart', datetime.fromisoformat(entry['day']).date())
+                event.add('dtstart', event_start)
+                event.add('dtend', event_end)
                 event.add('alarms', [])
                 event_list.append(event)
             except KeyError:
@@ -59,9 +63,7 @@ class Calendar:
         Generate a calendar from a menu
 
         :param cal_events: list of events.
-
         :return: iCalendar calendar.
-        :rtype: icalendar.Calendar
         """
         cal = icalendar.Calendar()
         for event in cal_events:
@@ -74,8 +76,6 @@ class Calendar:
         Get the menu as an iCal bytes object.
 
         :param icalendar_calendar: iCalendar calendar.
-
         :return: Decoded iCal file.
-        :rtype: str
         """
         return icalendar_calendar.to_ical().decode('utf-8')
