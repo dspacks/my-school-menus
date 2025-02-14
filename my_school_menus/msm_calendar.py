@@ -4,15 +4,16 @@ from datetime import datetime, timedelta
 
 class Calendar:
     @staticmethod
-    def events(menu: json, label: str, start_hour: int, start_minute: int, duration: int) -> list:
+    def events(menu: json, label: str, start_hour: int, start_minute: int, duration: int, all_day: bool) -> list:
         """
-        Generate a list of events from a menu with specified start times and durations.
+        Generate a list of events from a menu with specified start times, durations, or as all-day events.
 
         :param menu: json menu.
         :param label: Event label prefix (e.g., "Breakfast:" or "Lunch:").
         :param start_hour: Hour for event start time.
         :param start_minute: Minute for event start time.
         :param duration: Event duration in minutes.
+        :param all_day: Boolean flag for all-day events.
         :return: List of events.
         """
         event_list = []
@@ -42,14 +43,20 @@ class Calendar:
                         description = f"{description}{item['name']}\n"
                 if summary == '':
                     continue
-                
-                event_start = datetime.fromisoformat(entry['day']).replace(hour=start_hour, minute=start_minute)
-                event_end = event_start + timedelta(minutes=duration)
-                
+
+                event_start = datetime.fromisoformat(entry['day'])
+
+                if all_day:
+                    event.add('dtstart', event_start.date())  # All-day event
+                    event.add('dtend', event_start.date() + timedelta(days=1))  # End next day for all-day behavior
+                else:
+                    event_start = event_start.replace(hour=start_hour, minute=start_minute)
+                    event_end = event_start + timedelta(minutes=duration)
+                    event.add('dtstart', event_start)
+                    event.add('dtend', event_end)
+
                 event.add('summary', summary)
                 event.add('description', description)
-                event.add('dtstart', event_start)
-                event.add('dtend', event_end)
                 event.add('alarms', [])
                 event_list.append(event)
             except KeyError:
@@ -60,7 +67,7 @@ class Calendar:
     @staticmethod
     def calendar(cal_events: list) -> icalendar.Calendar:
         """
-        Generate a calendar from a menu
+        Generate a calendar from a menu.
 
         :param cal_events: list of events.
         :return: iCalendar calendar.
