@@ -64,6 +64,8 @@ class Menus:
     def get(self, district_id: int, site_id: int = None, menu_id: int = None, date: datetime.date = None) -> dict:
         """
         Get a menu by district ID, menu ID, and optionally a date.
+        
+        This can be used to fetch any type of menu (breakfast, lunch, etc.) by providing the appropriate menu_id.
 
         :param district_id: District ID.
         :param site_id: Site ID.
