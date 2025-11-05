@@ -4,25 +4,29 @@ from my_school_menus.msm_calendar import Calendar
 
 def menu_data():
     return {'data': [
-        {'setting': '{"current_display":[{"type":"recipe","recipe_name":"Chicken Nuggets"}]}'}
+        {'setting': '{"current_display":[{"type":"recipe","name":"Chicken Nuggets","recipe_id":1}]}', 'day': '2025-11-05T00:00:00.000-05:00'}
     ]}
 
 
 def test_events_missing_menu_data():
+    cal = Calendar()
     with pytest.raises(ValueError):
-        Calendar.events({'data': []})
+        cal.events({'data': []})
 
 
 def test_events():
-    Calendar.events(menu_data())
+    cal = Calendar()
+    cal.events(menu_data())
 
 
 def test_calendar():
-    event_data = Calendar.events(menu_data())
-    Calendar.calendar(event_data)
+    cal = Calendar()
+    event_data = cal.events(menu_data())
+    cal.calendar(event_data)
 
 
 def test_ical():
-    event_data = Calendar.events(menu_data())
-    icalendar_calendar = Calendar.calendar(event_data)
-    Calendar.ical(icalendar_calendar)
+    cal = Calendar()
+    event_data = cal.events(menu_data())
+    icalendar_calendar = cal.calendar(event_data)
+    cal.ical(icalendar_calendar)
