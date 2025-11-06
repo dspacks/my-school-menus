@@ -185,8 +185,7 @@ class Application(tk.Frame):
                     school_events.extend(cal.events(breakfast_menu, menu_type="breakfast", include_time=True))
 
                 if not self.combine_ics.get():
-                    calendar = cal.calendar(school_events)
-                    ical = cal.ical(calendar)
+                    ical = cal.ical(school_events)
                     with open(f'school-{district_id}-{site_id}-menu-calendar.ics', 'w', newline='') as f:
                         f.write(ical)
 
@@ -196,8 +195,7 @@ class Application(tk.Frame):
                 return
 
         if self.combine_ics.get():
-            calendar = cal.calendar(all_events)
-            ical = cal.ical(calendar)
+            ical = cal.ical(all_events)
             with open('school-menu-calendar.ics', 'w', newline='') as f:
                 f.write(ical)
             self.status.config(text="Combined ICS file generated.")
