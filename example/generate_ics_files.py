@@ -1,11 +1,14 @@
 import sys
 import os
+import argparse
 from datetime import time
 sys.path.append(os.path.pardir)
 
 from my_school_menus.msm_api import Menus
 # We import the calendar class with 'as MSMCalendar' to avoid conflicts
 from my_school_menus.msm_calendar import Calendar as MSMCalendar
+from my_school_menus.msm_ui import Application
+import tkinter as tk
 
 # School Configuration
 # ===========================================
@@ -35,6 +38,17 @@ CREATE_SEPARATE_FILES = False
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Generate iCalendar files for school menus.")
+    parser.add_argument('--ui', action='store_true', help='Launch the graphical user interface.')
+    args = parser.parse_args()
+
+    if args.ui:
+        root = tk.Tk()
+        root.title("My School Menus ICS Generator")
+        app = Application(master=root)
+        app.mainloop()
+        return
+
     menus = Menus()
     cal = MSMCalendar(
         default_breakfast_time=BREAKFAST_TIME,
